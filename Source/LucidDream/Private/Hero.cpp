@@ -21,7 +21,7 @@ void AHero::BeginPlay()
 	sprintEnabled = true;
 	doubleJumpEnabled = false;
 
-	MovementComponent = this->GetCharacterMovement();
+	CheckForComponents();
 
 	SetDoubleJumpEnabled();
 }
@@ -46,6 +46,24 @@ void AHero::SetupPlayerInputComponent(UInputComponent* InputComponent)
 	InputComponent->BindAxis("MoveForward", this, &AHero::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AHero::MoveRight);
 	InputComponent->BindAxis("FacingAzimuth", this, &AHero::FacingAzimuth);
+	InputComponent->BindAxis("FacingPitch", this, &AHero::FacingPitch);
+	InputComponent->BindAction("AttackBasic", EInputEvent::IE_Pressed, this, &AHero::AttackBasic);
+}
+
+// Detect and store components, log errors if nonexistent
+void AHero::CheckForComponents()
+{
+	SpringArmComponent = this->FindComponentByClass<USpringArmComponent>();
+	MovementComponent = this->GetCharacterMovement();
+
+	if (SpringArmComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No spring arm component connected to %s"), *this->GetName());
+	}
+	if (MovementComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No movement component connected to %s"), *this->GetName());
+	}
 }
 
 // Set max jumps based on whether double jumping is enabled
@@ -62,6 +80,7 @@ void AHero::SetDoubleJumpEnabled(bool isEnabled)
 	}
 }
 
+// Set max jumps based on whether double jumping is enabled
 void AHero::SetDoubleJumpEnabled()
 {
 	if (doubleJumpEnabled)
@@ -74,6 +93,7 @@ void AHero::SetDoubleJumpEnabled()
 	}
 }
 
+// Move player forward
 void AHero::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
@@ -91,6 +111,7 @@ void AHero::MoveForward(float Value)
 	}
 }
 
+// Move player right
 void AHero::MoveRight(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
@@ -108,7 +129,27 @@ void AHero::MoveRight(float Value)
 	}
 }
 
+// Turn on the yaw axis
 void AHero::FacingAzimuth(float Value)
 {
-	this->AddControllerYawInput(Value);
+	if ((Controller != NULL) && (Value != 0.0f))
+	{
+		this->AddControllerYawInput(Value);
+	}
+}
+
+// Turn on the pitch axis
+void AHero::FacingPitch(float Value)
+{
+	if ((Controller != NULL) && (Value != 0.0f))
+	{
+		FRotator *DeltaRotation = new FRotator(Value, 0.0f, 0.0f);
+		SpringArmComponent->AddLocalRotation(*DeltaRotation);
+	}
+}
+
+// Perform a basic attack
+void AHero::AttackBasic()
+{
+	UE_LOG(LogTemp, Warning, TEXT("*Stab*"));
 }

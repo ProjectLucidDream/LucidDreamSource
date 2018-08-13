@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SceneComponent.h"
 #include "GameFramework/Controller.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Hero.generated.h"
 
 UCLASS()
@@ -29,6 +32,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Detect and store components, log errors if nonexistent
+	void CheckForComponents();
+
 	// Set max jumps based on whether double jumping is enabled
 	void SetDoubleJumpEnabled(bool isEnabled);
 	void SetDoubleJumpEnabled();
@@ -39,6 +45,11 @@ public:
 	void MoveRight(float Value);
 	// Turn on the azimuth axis
 	void FacingAzimuth(float Value);
+	// Turn on pitch axis
+	void FacingPitch(float Value);
+
+	// Perform a basic attack
+	void AttackBasic();
 
 	// Sprint event
 	UFUNCTION(BlueprintImplementableEvent)
@@ -51,6 +62,9 @@ private:
 	// Determines whether double jumping is unlocked
 	bool doubleJumpEnabled;
 
-	// Input component stored here
-	UCharacterMovementComponent* MovementComponent;
+	// Movement component stored here
+	UCharacterMovementComponent* MovementComponent = nullptr;
+
+	// Spring arm component stored here
+	USpringArmComponent* SpringArmComponent = nullptr;
 };
