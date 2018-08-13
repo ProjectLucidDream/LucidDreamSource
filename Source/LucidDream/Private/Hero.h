@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/InputComponent.h"
+#include "GameFramework/Controller.h"
 #include "Hero.generated.h"
 
 UCLASS()
@@ -26,6 +29,28 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
-	
+	// Set max jumps based on whether double jumping is enabled
+	void SetDoubleJumpEnabled(bool isEnabled);
+	void SetDoubleJumpEnabled();
+
+	// Move player forward
+	void MoveForward(float Value);
+	// Move player right
+	void MoveRight(float Value);
+	// Turn on the azimuth axis
+	void FacingAzimuth(float Value);
+
+	// Sprint event
+	UFUNCTION(BlueprintImplementableEvent)
+		void HandleSprint();
+
+private:
+	// Determines whether sprinting is unlocked
+	bool sprintEnabled;
+
+	// Determines whether double jumping is unlocked
+	bool doubleJumpEnabled;
+
+	// Input component stored here
+	UCharacterMovementComponent* MovementComponent;
 };
