@@ -21,8 +21,19 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	// Getters
+	bool GetIsAlive();
+
+	// Setters
+	void SetMaxHitpoints(float value);
+	void SetIsDeathAllowed(bool value);
+	void SetIsAlive(bool value);
+
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	// Give default values to uninitialized variables and constants
+	void CheckVariables();
 
 	// Deal damage to another character via their combat component
 	void DealDamage(float amount, UCombatComponent* target);
@@ -36,9 +47,17 @@ public:
 	// Heal self for set amount
 	void HealSelf(float amount);
 
+	// Handle death if enabled
+	void Killed();
+
 private:
 	// The hitpoints of the owning actor
-	const float INITIAL_HITPOINTS = 100.0f;
+	float MaxHitpoints = NULL;
 	float Hitpoints;
 	
+	// Whether character is allowed to die
+	bool IsDeathAllowed = NULL;
+
+	// Whether character is alive
+	bool IsAlive = NULL;
 };

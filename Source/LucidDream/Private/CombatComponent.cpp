@@ -11,14 +11,23 @@ UCombatComponent::UCombatComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+#pragma region Getters & Setters
+// Getters
+bool UCombatComponent::GetIsAlive() { return IsAlive; }
+
+// Setters
+void UCombatComponent::SetMaxHitpoints(float value) { MaxHitpoints = value; }
+void UCombatComponent::SetIsDeathAllowed(bool value) { IsDeathAllowed = value; }
+void UCombatComponent::SetIsAlive(bool value) { IsAlive = value; }
+
+#pragma endregion
 
 // Called when the game starts
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Hitpoints = INITIAL_HITPOINTS;
-	
+	CheckVariables();
+	Hitpoints = MaxHitpoints;
 }
 
 
@@ -28,6 +37,14 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+// Give default values to uninitialized variables and constants
+void UCombatComponent::CheckVariables()
+{
+	MaxHitpoints = MaxHitpoints == NULL ? 100.0f : MaxHitpoints;
+	IsAlive = IsAlive == NULL ? true : IsAlive;
+	IsDeathAllowed = IsDeathAllowed == NULL ? true : IsDeathAllowed;
 }
 
 // Cause damage to another actor via their combat component
@@ -45,9 +62,10 @@ void UCombatComponent::DealDamage(float amount, UCombatComponent* target)
 void UCombatComponent::TakeDamage(float amount)
 {
 	Hitpoints -= amount;
-	if (Hitpoints < 0)
+	if (Hitpoints <= 0)
 	{
 		Hitpoints = 0;
+		Killed();
 	}
 }
 
@@ -66,8 +84,18 @@ void UCombatComponent::HealTarget(float amount, UCombatComponent* target)
 void UCombatComponent::HealSelf(float amount)
 {
 	Hitpoints += amount;
-	if (Hitpoints > INITIAL_HITPOINTS)
+	if (Hitpoints > MaxHitpoints)
 	{
-		Hitpoints = INITIAL_HITPOINTS;
+		Hitpoints = MaxHitpoints;
 	}
+}
+
+// Handle actor death if allowed
+void UCombatComponent::Killed()
+{
+	if (!IsDeathAllowed)
+	{
+		return;
+	}
+	IsAlive = false;
 }

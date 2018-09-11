@@ -22,6 +22,7 @@ void AHero::BeginPlay()
 	doubleJumpEnabled = false;
 
 	CheckForComponents();
+	SetupCombatComponent();
 
 	SetDoubleJumpEnabled();
 }
@@ -55,6 +56,7 @@ void AHero::CheckForComponents()
 {
 	SpringArmComponent = this->FindComponentByClass<USpringArmComponent>();
 	MovementComponent = this->GetCharacterMovement();
+	CombatComponent = this->FindComponentByClass<UCombatComponent>();
 
 	if (SpringArmComponent == nullptr)
 	{
@@ -64,6 +66,18 @@ void AHero::CheckForComponents()
 	{
 		UE_LOG(LogTemp, Error, TEXT("No movement component connected to %s"), *this->GetName());
 	}
+	if (CombatComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No combat component connected to %s"), *this->GetName());
+	}
+}
+
+// Initialize variables to desired value inside combat component
+void AHero::SetupCombatComponent()
+{
+	CombatComponent->SetMaxHitpoints(100.0f);
+	CombatComponent->SetIsDeathAllowed(true);
+	CombatComponent->SetIsAlive(true);
 }
 
 // Set max jumps based on whether double jumping is enabled
@@ -91,6 +105,25 @@ void AHero::SetDoubleJumpEnabled()
 	{
 		this->JumpMaxCount = 1;
 	}
+}
+
+// Raycast for knife attack
+FHitResult AHero::RaycastKnife()
+{
+	FHitResult FirstActorHit;
+	float CapsuleRadius = GetCapsuleComponent()->GetScaledCapsuleRadius() + 5.0f;
+	FVector ForwardVector = GetActorForwardVector();
+	FVector TraceStart = GetActorLocation() + (ForwardVector * CapsuleRadius);
+
+	FVector TraceEnd = ((ForwardVector * 65.0f) + TraceStart);
+	FCollisionQueryParams CollisionParams;
+	// ActorLineTraceSingle(FirstActorHit, TraceStart, TraceEnd, ECollisionChannel::ECC_Pawn, CollisionParams);
+	
+	this->GetWorld()->LineTraceSingleByChannel(FirstActorHit, TraceStart, TraceEnd, ECollisionChannel::ECC_Pawn, CollisionParams);
+
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor(0.0f, 0.0f, 0.0f), true);
+
+	return FirstActorHit;
 }
 
 // Move player forward
@@ -141,15 +174,31 @@ void AHero::FacingAzimuth(float Value)
 // Turn on the pitch axis
 void AHero::FacingPitch(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
+	if ((Controller != NULL) 
+		&& (Value != 0.0f) 
+		&& (SpringArmComponent->GetComponentRotation().Pitch + Value <= 89)
+		&& (SpringArmComponent->GetComponentRotation().Pitch + Value >= -89))
+	{ 
 		FRotator *DeltaRotation = new FRotator(Value, 0.0f, 0.0f);
 		SpringArmComponent->AddLocalRotation(*DeltaRotation);
+		UE_LOG(LogTemp, Warning, TEXT("%f"), SpringArmComponent->GetComponentRotation().Pitch + Value);
 	}
 }
 
 // Perform a basic attack
 void AHero::AttackBasic()
 {
+	auto ComponentHit = RaycastKnife().GetComponent();
+	if (ComponentHit == nullptr) { return; }
+	AActor* ActorHit = ComponentHit->GetOwner();
+	if (ActorHit == nullptr) { return; }
 	UE_LOG(LogTemp, Warning, TEXT("*Stab*"));
+	UCombatComponent* Target = ActorHit->FindComponentByClass<UCombatComponent>();
+	if (Target == nullptr) { return; }
+
+	CombatComponent->DealDamage(45, Target);
+	if (Target->GetIsAlive() == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Dead!"));
+	}
 }

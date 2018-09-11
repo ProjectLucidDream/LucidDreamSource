@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -10,6 +11,8 @@
 #include "Components/SceneComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "CombatComponent.h"
+#include "DrawDebugHelpers.h"
 #include "Hero.generated.h"
 
 UCLASS()
@@ -35,6 +38,9 @@ public:
 	// Detect and store components, log errors if nonexistent
 	void CheckForComponents();
 
+	// Initialize variables to desired value inside combat component
+	void SetupCombatComponent();
+
 	// Set max jumps based on whether double jumping is enabled
 	void SetDoubleJumpEnabled(bool isEnabled);
 	void SetDoubleJumpEnabled();
@@ -50,6 +56,9 @@ public:
 
 	// Perform a basic attack
 	void AttackBasic();
+
+	// Raycast for knife attack
+	FHitResult RaycastKnife();
 
 	// Sprint event
 	UFUNCTION(BlueprintImplementableEvent)
@@ -67,4 +76,7 @@ private:
 
 	// Spring arm component stored here
 	USpringArmComponent* SpringArmComponent = nullptr;
+
+	// Combat component stored here
+	UCombatComponent* CombatComponent = nullptr;
 };
