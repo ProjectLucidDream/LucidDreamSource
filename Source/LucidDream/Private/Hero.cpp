@@ -117,8 +117,7 @@ FHitResult AHero::RaycastKnife()
 
 	FVector TraceEnd = ((ForwardVector * 65.0f) + TraceStart);
 	FCollisionQueryParams CollisionParams;
-	// ActorLineTraceSingle(FirstActorHit, TraceStart, TraceEnd, ECollisionChannel::ECC_Pawn, CollisionParams);
-	
+
 	this->GetWorld()->LineTraceSingleByChannel(FirstActorHit, TraceStart, TraceEnd, ECollisionChannel::ECC_Pawn, CollisionParams);
 
 	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor(0.0f, 0.0f, 0.0f), true);
@@ -181,7 +180,6 @@ void AHero::FacingPitch(float Value)
 	{ 
 		FRotator *DeltaRotation = new FRotator(Value, 0.0f, 0.0f);
 		SpringArmComponent->AddLocalRotation(*DeltaRotation);
-		UE_LOG(LogTemp, Warning, TEXT("%f"), SpringArmComponent->GetComponentRotation().Pitch + Value);
 	}
 }
 
@@ -189,16 +187,25 @@ void AHero::FacingPitch(float Value)
 void AHero::AttackBasic()
 {
 	auto ComponentHit = RaycastKnife().GetComponent();
-	if (ComponentHit == nullptr) { return; }
+		if (ComponentHit == nullptr) { return; }
 	AActor* ActorHit = ComponentHit->GetOwner();
-	if (ActorHit == nullptr) { return; }
-	UE_LOG(LogTemp, Warning, TEXT("*Stab*"));
+		if (ActorHit == nullptr) { return; }
 	UCombatComponent* Target = ActorHit->FindComponentByClass<UCombatComponent>();
-	if (Target == nullptr) { return; }
+		if (Target == nullptr) { return; }
 
-	CombatComponent->DealDamage(45, Target);
-	if (Target->GetIsAlive() == false)
+	if (Target->GetIsAlive() == true)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Dead!"));
+		CombatComponent->DealDamage(45, Target);
+
+		// Perform an operation if this blow killed the opponent
+		if (Target->GetIsAlive() == false)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Dead!"));
+		}
+	}
+	else
+	// Perform if this blow failed due to target already being dead
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Omae, wa mou shindeiru!"));
 	}
 }
