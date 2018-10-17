@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "CombatComponent.h"
 #include "TestEnemy.generated.h"
@@ -43,6 +44,12 @@ public:
 private:
 	// Combat component stored here
 	UCombatComponent* CombatComponent = nullptr;
+
+	// Capsule component stored here
+	UCapsuleComponent* CapsuleComponent = nullptr;
+
+	// Static mesh component stored here
+	UStaticMeshComponent* StaticMeshComponent = nullptr;
 
 	// Remember if dead to reduce processor load
 	bool isAlreadyDead;

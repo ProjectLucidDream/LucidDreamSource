@@ -41,6 +41,20 @@ void ATestEnemy::CheckForComponents()
 	{
 		UE_LOG(LogTemp, Error, TEXT("No combat component connected to %s"), *this->GetName());
 	}
+
+	CapsuleComponent = this->FindComponentByClass<UCapsuleComponent>();
+
+	if (CapsuleComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No capsule component connected to %s"), *this->GetName());
+	}
+
+	StaticMeshComponent = this->FindComponentByClass<UStaticMeshComponent>();
+
+	if (StaticMeshComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No static mesh component connected to %s"), *this->GetName());
+	}
 }
 
 // Initialize variables to desired value inside combat component
@@ -64,8 +78,9 @@ bool ATestEnemy::TestIsAlive()
 // Perform appropriate actions upon death
 void ATestEnemy::PerformDeath()
 {
-	this->FindComponentByClass<UStaticMeshComponent>()->SetVisibility(false);
-	// TODO set collision channel to none
+	StaticMeshComponent->SetVisibility(false);
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // Called to bind functionality to input
