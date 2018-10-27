@@ -9,6 +9,14 @@ AHero::AHero()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// TODO: Implement this code once Blueprint Knife Projectile file path issue is resolved
+	/*
+	static ConstructorHelpers::FClassFinder<AThrownKnife> BPClass(TEXT("/Game/Blueprints/ThrownKnife_BP"));
+	if (BPClass.Class != NULL)
+	{
+		ThrownKnifeBP = BPClass.Class;
+	}
+	*/
 }
 
 // Called when the game starts or when spawned
@@ -49,6 +57,7 @@ void AHero::SetupPlayerInputComponent(UInputComponent* InputComponent)
 	InputComponent->BindAxis("FacingAzimuth", this, &AHero::FacingAzimuth);
 	InputComponent->BindAxis("FacingPitch", this, &AHero::FacingPitch);
 	InputComponent->BindAction("AttackBasic", EInputEvent::IE_Pressed, this, &AHero::AttackBasic);
+	InputComponent->BindAction("AimThrowKnife", EInputEvent::IE_Released, this, &AHero::ThrowKnife);
 }
 
 // Detect and store components, log errors if nonexistent
@@ -60,24 +69,31 @@ void AHero::CheckForComponents()
 
 	if (SpringArmComponent == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("No spring arm component connected to %s"), *this->GetName());
+		UE_LOG(LogTemp, Error, TEXT("No spring arm component connected to Hero"));
 	}
 	if (MovementComponent == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("No movement component connected to %s"), *this->GetName());
+		UE_LOG(LogTemp, Error, TEXT("No movement component connected to Hero"));
 	}
 	if (CombatComponent == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("No combat component connected to %s"), *this->GetName());
+		UE_LOG(LogTemp, Error, TEXT("No combat component connected to Hero"));
 	}
 }
 
 // Initialize variables to desired value inside combat component
 void AHero::SetupCombatComponent()
 {
-	CombatComponent->SetMaxHitpoints(100.0f);
-	CombatComponent->SetIsDeathAllowed(true);
-	CombatComponent->SetIsAlive(true);
+	if (CombatComponent != nullptr)
+	{
+		CombatComponent->SetMaxHitpoints(100.0f);
+		CombatComponent->SetIsDeathAllowed(true);
+		CombatComponent->SetIsAlive(true);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Combat component setup failed for Hero"));
+	}
 }
 
 // Set max jumps based on whether double jumping is enabled
@@ -208,4 +224,10 @@ void AHero::AttackBasic()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Omae, wa mou shindeiru!"));
 	}
+}
+
+void AHero::ThrowKnife()
+{
+	// TODO: Implement this code once Blueprint Knife Projectile file path issue is resolved
+	// AThrownKnife* ThrownKnife = this->GetWorld()->SpawnActor<AThrownKnife>(ThrownKnifeBP, this->GetActorLocation(), this->GetActorRotation());
 }

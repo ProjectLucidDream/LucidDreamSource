@@ -12,6 +12,8 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "CombatComponent.h"
+#include "ThrownKnife.h"
+#include "ConstructorHelpers.h"
 #include "DrawDebugHelpers.h"
 #include "Hero.generated.h"
 
@@ -57,6 +59,9 @@ public:
 	// Perform a basic attack
 	void AttackBasic();
 
+	// Throw knife
+	void ThrowKnife();
+
 	// Raycast for knife attack
 	FHitResult RaycastKnife();
 
@@ -70,6 +75,9 @@ private:
 
 	// Determines whether double jumping is unlocked
 	bool doubleJumpEnabled;
+
+
+	TSubclassOf<class AThrownKnife> ThrownKnifeBP;
 
 	// Movement component stored here
 	UCharacterMovementComponent* MovementComponent = nullptr;
